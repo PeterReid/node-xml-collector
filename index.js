@@ -46,7 +46,10 @@ XmlCollector.prototype.onEndElement = function(elem) {
 };
 
 XmlCollector.prototype.onCharacters = function(str) {
-
+  var handler = topOf(this.handlerStack);
+  if (handler && handler.text) {
+    handler.text.call(this, topOf(this.contextStack), str);
+  }
 };
 
 XmlCollector.prototype.onWarning = function(msg) {

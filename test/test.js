@@ -19,14 +19,14 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector({
               enter: function() { return new Point(); },
               children: {
                 'x': {
-                  enter: function() { return ''; },
-                  text: function(text, additional) { text += additional; },
-                  exit: function(point, text) { point.x = text; }
+                  enter: function() { return []; },
+                  text: function(fragments, str) { fragments.push(str); },
+                  exit: function(point, fragments) { point.x = fragments.join(''); }
                 },
                 'y': {
-                  enter: function() { return ''; },
-                  text: function(text, additional) { text += additional; },
-                  exit: function(point, text) { point.y = text ; }
+                  enter: function() { return []; },
+                  text: function(fragments, str) { fragments.push(str); },
+                  exit: function(point, fragments) { point.y = fragments.join(''); }
                 }
               },
               exit: function(line, point) { line.points.push(point); }
