@@ -86,3 +86,9 @@ XmlCollector.collectText = function(withText) {
   };
 };
 
+XmlCollector.collectTextInto = function(field) {
+  return XmlCollector.collectText(function(ctx, text) {
+    ctx[field] = text;
+  });
+};
+
