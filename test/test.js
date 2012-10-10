@@ -11,23 +11,23 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector({
   children: {
     'figure': {
       enter: function() { return []; },
+      exit: function(ctx, shapes) { this.emit('figure', shapes); },
       children: {
         'line': {
           enter: function() { return new Line() },
+          exit: function(figure, line) { figure.push(line); },
           children: {
             'point': {
               enter: function() { return new Point(); },
+              exit: function(line, point) { line.points.push(point); },
               children: {
                 'x': XmlCollector.collectTextInto('x'),
                 'y': XmlCollector.collectTextInto('y')
-              },
-              exit: function(line, point) { line.points.push(point); }
+              }
             }
-          },
-          exit: function(figure, line) { figure.push(line); }
+          }
         }
-      },
-      exit: function(ctx, shapes) { this.emit('figure', shapes); }
+      }
     }
   }
 })).on('figure', function(figure) {
