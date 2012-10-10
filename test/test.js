@@ -18,16 +18,8 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector({
             'point': {
               enter: function() { return new Point(); },
               children: {
-                'x': {
-                  enter: function() { return []; },
-                  text: function(fragments, str) { fragments.push(str); },
-                  exit: function(point, fragments) { point.x = fragments.join(''); }
-                },
-                'y': {
-                  enter: function() { return []; },
-                  text: function(fragments, str) { fragments.push(str); },
-                  exit: function(point, fragments) { point.y = fragments.join(''); }
-                }
+                'x': XmlCollector.collectText(function(point, text) { point.x = text; }),
+                'y': XmlCollector.collectText(function(point, text) { point.y = text; })
               },
               exit: function(line, point) { line.points.push(point); }
             }

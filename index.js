@@ -78,3 +78,11 @@ XmlCollector.prototype.end = function(str) {
 };
 
 
+XmlCollector.collectText = function(withText) {
+  return {
+    enter: function() { return [] },
+    text: function(fragments, str) { fragments.push(str); },
+    exit: function(context, fragments) { return withText(context, fragments.join('')); }
+  };
+};
+
