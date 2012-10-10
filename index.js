@@ -27,10 +27,10 @@ XmlCollector.prototype.onStartElement = function(elem, attrs) {
   this.elementStack.push(elem);
 
   var currentHandler = topOf(this.handlerStack);
-  var childHandler = currentHandler && currentHandler.child ? currentHandler.child[elem] : null;
+  var childHandler = currentHandler && currentHandler.children ? currentHandler.children[elem] : null;
   this.handlerStack.push(childHandler);
   if (childHandler && childHandler.enter) {
-    this.contextStack.push(childHandler.enter.call(this, topOf(contextStack)));
+    this.contextStack.push(childHandler.enter.call(this, topOf(this.contextStack)));
   } else {
     this.contextStack.push(null);
   }
