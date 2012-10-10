@@ -1,0 +1,6 @@
+{ "name": "node-xml-collector",
+  "version": "0.0.1",
+  "dependencies": {
+    "node-xml": "1.0.x"
+  }
+}
