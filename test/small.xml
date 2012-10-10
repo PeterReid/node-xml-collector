@@ -1,0 +1,17 @@
+<figure>
+  <line color="mauve">
+    <point>
+      <x>5</x>
+      <y>6</y>
+    </point>
+    <point>
+      <x>9</x>
+      <y>7</y>
+    </point>
+    <point>
+      <x>9</x>
+      <y>3</y>
+    </point>
+  </line>
+  <circle x="3" y="2" radius="4" />
+</figure>

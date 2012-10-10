@@ -17,6 +17,7 @@ var XmlCollector = exports = module.exports = function(rootHandler) {
     cb.onError(self.onError.bind(self));
   });
 };
+util.inherits(XmlCollector, EventEmitter);
 
 function topOf(xs) {
   return xs[xs.length-1];
@@ -26,7 +27,7 @@ XmlCollector.prototype.onStartElement = function(elem, attrs) {
   this.elementStack.push(elem);
 
   var currentHandler = topOf(this.handlerStack);
-  var childHandler = currentHandler ? currentHandler.child[elem] : null;
+  var childHandler = currentHandler && currentHandler.child ? currentHandler.child[elem] : null;
   this.handlerStack.push(childHandler);
   if (childHandler && childHandler.enter) {
     this.contextStack.push(childHandler.enter.call(this, topOf(contextStack)));
@@ -49,22 +50,22 @@ XmlCollector.prototype.onCharacters = function(str) {
 };
 
 XmlCollector.prototype.onWarning = function(msg) {
-  self.emit('warning', new Error(msg));
+  this.emit('warning', new Error(msg));
 };
 
 XmlCollector.prototype.onError = function(msg) {
-  self.emit('error', new Error(msg));
+  this.emit('error', new Error(msg));
 };
 
 XmlCollector.prototype.write = function(str) {
-  self.parser.parseString(str);
+  this.parser.parseString(str);
 };
 
 XmlCollector.prototype.writable = true;
 
 XmlCollector.prototype.end = function(str) {
   if (str) {
-    self.parser.parseString(str);
+    this.parser.parseString(str);
   }
 
   if (this.elementStack.length > 0) {
@@ -74,4 +75,3 @@ XmlCollector.prototype.end = function(str) {
 };
 
 
-util.inherits(XmlCollector, EventEmitter);
