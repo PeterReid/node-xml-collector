@@ -56,4 +56,22 @@ XmlCollector.prototype.onError = function(msg) {
   self.emit('error', new Error(msg));
 };
 
+XmlCollector.prototype.write = function(str) {
+  self.parser.parseString(str);
+};
+
+XmlCollector.prototype.writable = true;
+
+XmlCollector.prototype.end = function(str) {
+  if (str) {
+    self.parser.parseString(str);
+  }
+
+  if (this.elementStack.length > 0) {
+    this.emit('error', new Error('XML document ended with these tags open: '
+                                 + this.elementStack.join(', ')));
+  }
+}
+
+
 util.inherits(XmlCollector, EventEmitter);
