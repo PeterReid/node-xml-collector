@@ -28,8 +28,8 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector({
               enter: function() { return new Point(); },
               exit: function(line, point) { line.points.push(point); },
               children: {
-                'x': XmlCollector.collectTextInto('x'),
-                'y': XmlCollector.collectTextInto('y')
+                'x': XmlCollector.collectTextInto('x', parseFloat),
+                'y': XmlCollector.collectTextInto('y', parseFloat)
               }
             }
           }

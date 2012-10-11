@@ -98,8 +98,9 @@ XmlCollector.collectText = function(withText) {
   };
 };
 
-XmlCollector.collectTextInto = function(field) {
+XmlCollector.collectTextInto = function(field, transform) {
   return XmlCollector.collectText(function(ctx, text) {
+    if (transform) text = transform(text)
     ctx[field] = text;
   });
 };
