@@ -38,3 +38,13 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector(new XmlCollector.Node()
 )).on('figure', function(figure) {
   console.log('figure:', JSON.stringify(figure));
 });
+
+
+fs.createReadStream('./nested.xml').pipe(new XmlCollector(new XmlCollector.Node()
+  .child(['a', 'b', 'c', 'd', 'e', 'f'], 
+         XmlCollector.collectText(function(ctx, text) {
+           this.emit('f', text)
+         }))
+)).on('f', function(text) {
+  console.log('f:', text);
+});

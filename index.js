@@ -37,14 +37,15 @@ XmlCollector.prototype.onStartElement = function(elem, attrs) {
   var currentHandler = topOf(this.handlerStack);
   var childHandler = currentHandler && currentHandler.children ? currentHandler.children[elem] : null;
   this.handlerStack.push(childHandler);
+  var stackTop = topOf(this.contextStack);
   if (childHandler && childHandler.enterCb) {
     this.contextStack.push(childHandler.enterCb.call(
       this, 
-      topOf(this.contextStack), 
+      stackTop, 
       keyValsToObject(attrs), 
       attrs));
   } else {
-    this.contextStack.push(null);
+    this.contextStack.push(stackTop);
   }
 };
 
@@ -110,7 +111,14 @@ XmlCollector.Node.prototype.text = function(fn) {
   return this;
 }
 XmlCollector.Node.prototype.child = function(elem, node) {
-  this.children[elem] = node;
+  if (typeof elem === 'string') {
+    this.children[elem] = node;
+  } else {
+    for (var i = elem.length - 1; i > 0; i--) {
+      node = new XmlCollector.Node().child(elem[i], node);
+    }
+    this.children[elem[0]] = node;
+  }
   return this;
 }
 
@@ -119,7 +127,7 @@ XmlCollector.collectText = function(withText) {
   return new XmlCollector.Node()
     .enter(function() { return [] })
     .text(function(fragments, str) { fragments.push(str); })
-    .exit(function(ctx, fragments) { return withText(ctx, fragments.join(''))})
+    .exit(function(ctx, fragments) { return withText.call(this, ctx, fragments.join(''))})
 };
 
 XmlCollector.collectTextInto = function(field, transform) {
