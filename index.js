@@ -26,7 +26,7 @@ function topOf(xs) {
 function keyValsToObject(keyVals) {
   var ob = {};
   for (var i = 0; i < keyVals.length; i++) {
-    ob[keyVals[i][0]] = ob[keyVals[i][1]];
+    ob[keyVals[i][0]] = keyVals[i][1];
   }
   return ob;
 }
@@ -37,8 +37,8 @@ XmlCollector.prototype.onStartElement = function(elem, attrs) {
   var currentHandler = topOf(this.handlerStack);
   var childHandler = currentHandler && currentHandler.children ? currentHandler.children[elem] : null;
   this.handlerStack.push(childHandler);
-  if (childHandler && childHandler.enter) {
-    this.contextStack.push(childHandler.enter.call(
+  if (childHandler && childHandler.enterCb) {
+    this.contextStack.push(childHandler.enterCb.call(
       this, 
       topOf(this.contextStack), 
       keyValsToObject(attrs), 
@@ -52,15 +52,15 @@ XmlCollector.prototype.onEndElement = function(elem) {
   this.elementStack.pop();
   var wasHandling = this.handlerStack.pop();
   var wasContext = this.contextStack.pop();
-  if (wasHandling && wasHandling.exit) {
-    wasHandling.exit.call(this, topOf(this.contextStack), wasContext);
+  if (wasHandling && wasHandling.exitCb) {
+    wasHandling.exitCb.call(this, topOf(this.contextStack), wasContext);
   }
 };
 
 XmlCollector.prototype.onCharacters = function(str) {
   var handler = topOf(this.handlerStack);
-  if (handler && handler.text) {
-    handler.text.call(this, topOf(this.contextStack), str);
+  if (handler && handler.textCb) {
+    handler.textCb.call(this, topOf(this.contextStack), str);
   }
 };
 
@@ -90,12 +90,36 @@ XmlCollector.prototype.end = function(str) {
 };
 
 
+
+XmlCollector.Node = function() {
+  this.enterCb = null;
+  this.exitCb = null;
+  this.textCb = null;
+  this.children = {};
+}
+XmlCollector.Node.prototype.enter = function(fn) {
+  this.enterCb = fn;
+  return this;
+};
+XmlCollector.Node.prototype.exit = function(fn) {
+  this.exitCb = fn;
+  return this;
+}
+XmlCollector.Node.prototype.text = function(fn) {
+  this.textCb = fn;
+  return this;
+}
+XmlCollector.Node.prototype.child = function(elem, node) {
+  this.children[elem] = node;
+  return this;
+}
+
+
 XmlCollector.collectText = function(withText) {
-  return {
-    enter: function() { return [] },
-    text: function(fragments, str) { fragments.push(str); },
-    exit: function(context, fragments) { return withText(context, fragments.join('')); }
-  };
+  return new XmlCollector.Node()
+    .enter(function() { return [] })
+    .text(function(fragments, str) { fragments.push(str); })
+    .exit(function(ctx, fragments) { return withText(ctx, fragments.join(''))})
 };
 
 XmlCollector.collectTextInto = function(field, transform) {
@@ -104,4 +128,3 @@ XmlCollector.collectTextInto = function(field, transform) {
     ctx[field] = text;
   });
 };
-
