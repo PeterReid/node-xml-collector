@@ -4,7 +4,14 @@ var XmlCollector = require('../index');
 function Point() {
 }
 function Line() {
+  this.type = 'line';
   this.points = [];
+}
+function Circle(radius, x, y) {
+  this.type = 'circle';
+  this.radius = radius;
+  this.x = x;
+  this.y = y;
 }
 
 fs.createReadStream('./small.xml').pipe(new XmlCollector({
@@ -25,6 +32,12 @@ fs.createReadStream('./small.xml').pipe(new XmlCollector({
                 'y': XmlCollector.collectTextInto('y')
               }
             }
+          }
+        },
+        'circle': {
+          enter: function(figure, attrs) {
+            console.log(attrs);
+            figure.push(new Circle(attrs.radius, parseFloat(attrs.x),  parseFloat(attrs.y)));
           }
         }
       }

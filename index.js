@@ -23,6 +23,14 @@ function topOf(xs) {
   return xs[xs.length-1];
 }
 
+function keyValsToObject(keyVals) {
+  var ob = {};
+  for (var i = 0; i < keyVals.length; i++) {
+    ob[keyVals[i][0]] = ob[keyVals[i][1]];
+  }
+  return ob;
+}
+
 XmlCollector.prototype.onStartElement = function(elem, attrs) {
   this.elementStack.push(elem);
 
@@ -30,7 +38,11 @@ XmlCollector.prototype.onStartElement = function(elem, attrs) {
   var childHandler = currentHandler && currentHandler.children ? currentHandler.children[elem] : null;
   this.handlerStack.push(childHandler);
   if (childHandler && childHandler.enter) {
-    this.contextStack.push(childHandler.enter.call(this, topOf(this.contextStack)));
+    this.contextStack.push(childHandler.enter.call(
+      this, 
+      topOf(this.contextStack), 
+      keyValsToObject(attrs), 
+      attrs));
   } else {
     this.contextStack.push(null);
   }
