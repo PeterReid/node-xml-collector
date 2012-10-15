@@ -88,6 +88,7 @@ XmlCollector.prototype.end = function(str) {
     this.emit('error', new Error('XML document ended with these tags open: '
                                  + this.elementStack.join(', ')));
   }
+  this.emit('end');
 };
 
 
